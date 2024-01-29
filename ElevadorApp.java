@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 
 public class ElevadorApp extends JFrame {
 
-    private static final int NUM_ANDARES = 8;
+    private static final int NUM_ANDARES = 10;
     private static final int NUM_ELEVADORES = 2;
 
     private JButton[] botoesAndar;
@@ -80,14 +80,37 @@ public class ElevadorApp extends JFrame {
     private void chamarElevador(int andar) {
         int elevadorMaisProximo = encontrarElevadorMaisProximo(andar);
         System.out.println("Chamando elevador para o Andar " + andar);
-        
+    
         if (emMovimento[elevadorMaisProximo]) {
             // Se o elevador estiver em movimento, ignore o chamado
             System.out.println("Elevador " + (elevadorMaisProximo + 1) + " está em movimento.");
         } else {
             // Atualiza o andar atual do elevador e exibe mensagem
-            andarAtualElevador[elevadorMaisProximo] = andar;
             System.out.println("Elevador " + (elevadorMaisProximo + 1) + " a caminho do Andar " + andar);
+            emMovimento[elevadorMaisProximo] = true;
+    
+            // Simula o movimento do elevador (atualize conforme necessário)
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        int andarAtual = andarAtualElevador[elevadorMaisProximo];
+                        int destino = andar;
+    
+                        System.out.println("Elevador " + (elevadorMaisProximo + 1) + " em movimento do Andar " +
+                                andarAtual + " para o Andar " + destino);
+    
+                        // Simula o tempo que leva para o elevador se mover
+                        Thread.sleep(Math.abs(destino - andarAtual) * 1000);
+    
+                        andarAtualElevador[elevadorMaisProximo] = destino; // Atualiza o andar atual após o movimento
+                        emMovimento[elevadorMaisProximo] = false;
+                        System.out.println("Elevador " + (elevadorMaisProximo + 1) + " chegou ao Andar " + destino);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
     }
 
