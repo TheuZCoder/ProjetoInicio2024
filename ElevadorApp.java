@@ -18,9 +18,16 @@ public class ElevadorApp extends JFrame {
     public ElevadorApp() {
         // Configurações básicas da janela
         setTitle("Simulador de Elevadores");
-        setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+
+        try {
+            // Define o Look and Feel Nimbus para uma aparência mais moderna
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+            SwingUtilities.updateComponentTreeUI(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         andarAtualElevador = new int[NUM_ELEVADORES];
         emMovimento = new boolean[NUM_ELEVADORES];
@@ -50,7 +57,6 @@ public class ElevadorApp extends JFrame {
                 }
             });
         }
-        
 
         // Inicializa o campo de texto para o andar de destino
         andarDestinoTextField = new JTextField();
@@ -73,6 +79,12 @@ public class ElevadorApp extends JFrame {
 
         add(painelControles);
 
+        // Ajusta o tamanho da janela automaticamente
+        pack();
+
+        // Centraliza a janela na tela
+        setLocationRelativeTo(null);
+
         // Exibe a janela
         setVisible(true);
     }
@@ -80,7 +92,7 @@ public class ElevadorApp extends JFrame {
     private void chamarElevador(int andar) {
         int elevadorMaisProximo = encontrarElevadorMaisProximo(andar);
         System.out.println("Chamando elevador para o Andar " + andar);
-    
+
         if (emMovimento[elevadorMaisProximo]) {
             // Se o elevador estiver em movimento, ignore o chamado
             System.out.println("Elevador " + (elevadorMaisProximo + 1) + " está em movimento.");
@@ -88,7 +100,7 @@ public class ElevadorApp extends JFrame {
             // Atualiza o andar atual do elevador e exibe mensagem
             System.out.println("Elevador " + (elevadorMaisProximo + 1) + " a caminho do Andar " + andar);
             emMovimento[elevadorMaisProximo] = true;
-    
+
             // Simula o movimento do elevador (atualize conforme necessário)
             new Thread(new Runnable() {
                 @Override
@@ -96,13 +108,13 @@ public class ElevadorApp extends JFrame {
                     try {
                         int andarAtual = andarAtualElevador[elevadorMaisProximo];
                         int destino = andar;
-    
+
                         System.out.println("Elevador " + (elevadorMaisProximo + 1) + " em movimento do Andar " +
                                 andarAtual + " para o Andar " + destino);
-    
+
                         // Simula o tempo que leva para o elevador se mover
                         Thread.sleep(Math.abs(destino - andarAtual) * 1000);
-    
+
                         andarAtualElevador[elevadorMaisProximo] = destino; // Atualiza o andar atual após o movimento
                         emMovimento[elevadorMaisProximo] = false;
                         System.out.println("Elevador " + (elevadorMaisProximo + 1) + " chegou ao Andar " + destino);
