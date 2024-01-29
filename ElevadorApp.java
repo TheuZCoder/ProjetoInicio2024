@@ -79,6 +79,7 @@ public class ElevadorApp extends JFrame {
 
     private void chamarElevador(int andar) {
         int elevadorMaisProximo = encontrarElevadorMaisProximo(andar);
+        System.out.println("Chamando elevador para o Andar " + andar);
         
         if (emMovimento[elevadorMaisProximo]) {
             // Se o elevador estiver em movimento, ignore o chamado
@@ -88,7 +89,6 @@ public class ElevadorApp extends JFrame {
             andarAtualElevador[elevadorMaisProximo] = andar;
             System.out.println("Elevador " + (elevadorMaisProximo + 1) + " a caminho do Andar " + andar);
         }
-        System.out.println("Chamando elevador para o Andar " + andar);
     }
 
     private int encontrarElevadorMaisProximo(int andar) {
