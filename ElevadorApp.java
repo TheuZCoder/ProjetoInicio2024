@@ -15,29 +15,19 @@ public class ElevadorApp extends JFrame {
     private JTextField andarDestinoTextField;
     private JPanel[] luzesElevador;
     private JPanel[] andarIndicators;
-    private JTextArea consoleTextArea; // Componente de texto para exibir a saída do console
-    private PrintStream printStream; // Stream para redirecionar a saída do console
+    private JTextArea consoleTextArea;
+    private PrintStream printStream;
 
     private int[] andarAtualElevador;
     private boolean[] emMovimento;
 
     public ElevadorApp() {
-        // Configurações básicas da janela
         setTitle("Simulador de Elevadores");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-
-        try {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-            SwingUtilities.updateComponentTreeUI(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         andarAtualElevador = new int[NUM_ELEVADORES];
         emMovimento = new boolean[NUM_ELEVADORES];
 
-        // Inicializa os botões dos andares
         botoesAndar = new JButton[NUM_ANDARES];
         for (int i = 0; i < NUM_ANDARES; i++) {
             botoesAndar[i] = new JButton("Andar " + i);
@@ -50,7 +40,6 @@ public class ElevadorApp extends JFrame {
             });
         }
 
-        // Inicializa os botões dos elevadores
         botoesElevador = new JButton[NUM_ELEVADORES];
         luzesElevador = new JPanel[NUM_ELEVADORES];
         andarIndicators = new JPanel[NUM_ELEVADORES];
@@ -60,7 +49,7 @@ public class ElevadorApp extends JFrame {
             luzesElevador[i].setPreferredSize(new Dimension(20, 20));
             luzesElevador[i].setBackground(Color.RED);
             andarIndicators[i] = new JPanel();
-            andarIndicators[i].setPreferredSize(new Dimension(20, 200));
+            andarIndicators[i].setPreferredSize(new Dimension(20, 20));
             andarIndicators[i].setBackground(Color.GRAY);
             final int elevador = i;
             botoesElevador[i].addActionListener(new ActionListener() {
@@ -71,25 +60,34 @@ public class ElevadorApp extends JFrame {
             });
         }
 
-        // Inicializa o campo de texto para o andar de destino
         andarDestinoTextField = new JTextField();
 
-        // Inicializa o componente de texto para a saída do console
         consoleTextArea = new JTextArea();
-        consoleTextArea.setEditable(false); // Impede que o usuário edite o texto
+        consoleTextArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(consoleTextArea);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setPreferredSize(new Dimension(400, 200)); // Ajuste as dimensões conforme necessário
 
-        // Redireciona a saída do console para o componente de texto
+        // Certifique-se de configurar a política de rolagem correta
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS); // Adicione esta linha se
+                                                                                          // necessário
+
         printStream = new PrintStream(new CustomOutputStream(consoleTextArea));
         System.setOut(printStream);
 
-        // Adiciona os componentes à janela
+        setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        // Adiciona os botões dos andares
         JPanel painelAndares = new JPanel(new GridLayout(NUM_ANDARES, 1));
         for (int i = NUM_ANDARES - 1; i >= 0; i--) {
             painelAndares.add(botoesAndar[i]);
         }
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        add(painelAndares, gbc);
 
+        // Adiciona os botões e indicadores dos elevadores
         JPanel painelBotoesElevador = new JPanel(new GridLayout(1, NUM_ELEVADORES));
         JPanel painelLuzesElevador = new JPanel(new GridLayout(1, NUM_ELEVADORES));
         JPanel painelAndarIndicators = new JPanel(new GridLayout(1, NUM_ELEVADORES));
@@ -98,16 +96,30 @@ public class ElevadorApp extends JFrame {
             painelLuzesElevador.add(luzesElevador[i]);
             painelAndarIndicators.add(andarIndicators[i]);
         }
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        add(painelBotoesElevador, gbc);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1; // Aumenta o valor para 2 para ocupar duas colunas
+        gbc.fill = GridBagConstraints.BOTH;
+        add(painelLuzesElevador, gbc);
 
-        JPanel painelControles = new JPanel(new BorderLayout());
-        painelControles.add(painelAndares, BorderLayout.WEST);
-        painelControles.add(andarDestinoTextField, BorderLayout.CENTER);
-        painelControles.add(painelBotoesElevador, BorderLayout.EAST);
-        painelControles.add(painelLuzesElevador, BorderLayout.SOUTH);
+        // Adiciona o campo de texto para o andar de destino
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1; // Aumenta o valor para 2 para ocupar duas colunas
+        gbc.fill = GridBagConstraints.HORIZONTAL; // Preenche horizontalmente
+        gbc.insets = new Insets(5, 5, 5, 5); // Adiciona margens para separar do restante dos componentes
+        add(andarDestinoTextField, gbc);
 
-        add(painelControles, BorderLayout.NORTH);
-        add(painelAndarIndicators, BorderLayout.CENTER);
-        add(scrollPane, BorderLayout.SOUTH); // Adiciona a caixa de texto para a saída do console
+        // Adiciona a área de console
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.gridheight = 1;
+        gbc.insets = new Insets(5, 5, 5, 5); // Adiciona margens para separar do restante dos componentes
+        add(scrollPane, gbc);
 
         // Ajusta o tamanho da janela automaticamente
         pack();
@@ -129,7 +141,6 @@ public class ElevadorApp extends JFrame {
             consoleTextArea.append("Elevador " + (elevadorMaisProximo + 1) + " a caminho do Andar " + andar + "\n");
             emMovimento[elevadorMaisProximo] = true;
             luzesElevador[elevadorMaisProximo].setBackground(Color.GREEN);
-            andarIndicators[elevadorMaisProximo].setPreferredSize(new Dimension(20, (andar + 1) * 20));
 
             new Thread(new Runnable() {
                 @Override
